@@ -41,10 +41,17 @@ let passwordCriteria = {
     return allowedChars;
   },
 
-  promptLength() {
-    // Since we're working with just this object in global scope, the length needs to be cleared 
-    // so that successive sessions don't inherit their length from the previous one
+  /**
+   * Sets the fields of this objects to their default values
+   */
+  reset() {
     this.length = 0;
+    for (let key in this.allowChars) {
+      this.allowChars[key] = false;
+    }
+  },
+
+  promptLength() {
     while (this.length < 8 || this.length > 128) {
       let input = prompt("How long shall the password be?\n(Must be between 8 and 128 inclusive)");
       let parsedInput = parseInt(input);
@@ -65,10 +72,22 @@ let passwordCriteria = {
 }
 
 /**
+ * Selects a random element from an array
+ * 
+ * @param {any[]} arr 
+ */
+function randomSelection(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+/**
+ * The password criteria object is passed as a parameter to this function. I just think it makes it more 
+ * clear that this function interacts with that object, especially since it's mutating it.
+ * 
  * @param {typeof passwordCriteria} criteria 
  */
 function generatePassword(criteria) {
-  // Ask user for criteria
+  criteria.reset(); // Clear any mutations from the previous session
   criteria.promptLength();
   criteria.promptFeatures();
 
@@ -76,7 +95,7 @@ function generatePassword(criteria) {
   let allowedChars = criteria.allowedChars;
   let password = "";
   for (let _i = 0; _i < criteria.length; ++_i) {
-    password += allowedChars[Math.floor(Math.random() * allowedChars.length)];
+    password += randomSelection(allowedChars);
   }
 
   return password;
@@ -88,7 +107,6 @@ function writePassword() {
   var passwordText = document.querySelector("#password");
 
   passwordText.value = password;
-
 }
 
 // Add event listener to generate button
